@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import rospy, roslaunch
+import numpy as np
+import subprocess
+import os
+import sys
+from enum import Enum
+from std_msgs.msg import UInt8, Float64
+
+class CoreNodeController():
+    def __init__(self):
+        self.ros_package_path=os.path.dirname(os.path.realpath(__file__))
+        self.ros_package_path=self.ros_package_path.replace('pub_sub_dialog/nodes','')
+        self.sub_mode_control=rospy.Subscriber('start',UInt8, self.pub_sub_start,queue_size=1)
+
+        self.uuid=roslaunch.rlutil.get_or_generate_uuid(None,False)
+        #self.pub_tunnel_order=rospy.Publisher('/order',UInt8,queue_size=1)
+
+        self.is_triggered=False
+        self.talker_start=False
+        self.listener_start=False
+
+        loop_rate=rospy.Rate(10) #10Hz
+        while not rospy.is_shutdown():
+            if self.is_triggered==True:
+                self.LaunchControl()
+            loop_rate.sleep()
+
+    def pub_sub_start(self,mode_msg):
+        #rospy.init_node('nodeCtrl')
+        rospy.loginfo("From Controller:starts the progress with %d", mode_msg.data)
+        self.current_mode=mode_msg.data
+        self.is_triggered=True
+
+    def LaunchControl(self):
+        if self.current_mode==1:
+            rospy.loginfo("current_mode:1")
+            self.launch_publish=roslaunch.scriptapi.ROSLaunch()
+            self.launch_publish=roslaunch.parent.ROSLaunchParent(self.uuid,[self.ros_package_path+"pub_sub_dialog/launch/talker.launch"])
+            self.launch_publish.start()
+            self.talker_start=False
+            self.is_triggered=False
+            self.current_mode=2
+        
+        if self.current_mode==2:
+            rospy.loginfo("current_mode:2")
+            self.launch_publish=roslaunch.scriptapi.ROSLaunch()
+            self.launch_publish=roslaunch.parent.ROSLaunchParent(self.uuid,[self.ros_package_path+"pub_sub_dialog/launch/listener.launch"])
+            self.launch_publish.start()
+            self.talker_start=False
+            self.is_triggered=False
+
+        if self.currnet_mode == 3:
+            rospy.loginfo("current_mode:3")
+            self.launch_publish=roslaunch.scriptapi.ROSLaunch()
+            self.launch_publish=roslaunch.parent.ROSLaunchParent(self.uuid,[self.ros_package_path+"pub_sub_dialog/launch/talker.launch"])
+            self.launch_publish.shutdown()
+            self.istriggered=False
+        
+    def main(self):
+        rospy.spin()
+
+if __name__=='__main__':
+    rospy.init_node('core_node_controller')
+    node=CoreNodeController()
+    node.main()
+    
