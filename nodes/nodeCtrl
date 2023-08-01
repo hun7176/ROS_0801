@@ -57,7 +57,7 @@ class CoreNodeController():
             self.launch_publish=roslaunch.scriptapi.ROSLaunch()
             self.launch_publish=roslaunch.parent.ROSLaunchParent(self.uuid,[self.ros_package_path+"pub_sub_dialog/launch/talker.launch"])
             self.launch_publish.shutdown()
-            self.istriggered=False
+            self.is_triggered=False
         
     def main(self):
         rospy.spin()

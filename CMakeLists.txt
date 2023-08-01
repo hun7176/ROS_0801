@@ -3,6 +3,7 @@ project(pub_sub_dialog)
 
 find_package(catkin REQUIRED COMPONENTS
     rospy
+    roslaunch
     std_msgs
     message_generation
 )
@@ -16,6 +17,7 @@ generate_messages(
 catkin_package(
     CATKIN_DEPENDS
     rospy
+    roslaunch
     std_msgs
     message_runtime
 )
@@ -28,5 +30,6 @@ include_directories(
 catkin_install_python(PROGRAMS
     nodes/listener
     nodes/talker
+    nodes/nodeCtrl
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
